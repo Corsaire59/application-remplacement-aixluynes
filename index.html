@@ -1,0 +1,1074 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Application Remplacement</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0b3a70">
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(180deg, #061b33 0%, #0b3a70 45%, #061b33 100%);
+      color: white;
+      padding: 18px;
+      padding-bottom: 90px;
+    }
+
+    .app {
+      max-width: 900px;
+      margin: auto;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin: 18px 0 22px;
+    }
+
+    .logo {
+      width: 82px;
+      height: 82px;
+      border-radius: 50%;
+      object-fit: cover;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+    }
+
+    .title h1 {
+      margin: 0;
+      font-size: 38px;
+      color: #ffd400;
+      line-height: 1;
+    }
+
+    .title p {
+      margin: 8px 0 0;
+      font-size: 17px;
+      font-weight: bold;
+      color: white;
+      letter-spacing: 0.3px;
+    }
+
+    .tabs {
+      display: flex;
+      background: rgba(255,255,255,0.08);
+      border-radius: 18px;
+      padding: 6px;
+      margin-bottom: 18px;
+      gap: 6px;
+    }
+
+    .tab {
+      flex: 1;
+      border: 0;
+      padding: 14px 8px;
+      border-radius: 15px;
+      font-size: 16px;
+      font-weight: bold;
+      color: white;
+      background: transparent;
+    }
+
+    .tab.active {
+      background: white;
+      color: black;
+      box-shadow: inset 0 -5px 0 #ffd400;
+    }
+
+    .box {
+      background: white;
+      color: black;
+      padding: 18px;
+      border-radius: 18px;
+      margin-bottom: 18px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+    }
+
+    .userBox {
+      background: #e8f5e9;
+      color: black;
+      display: none;
+      padding: 16px;
+      border-radius: 18px;
+      margin-bottom: 18px;
+    }
+
+    .userTop {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .avatar {
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      background: #2e7d32;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      font-weight: bold;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .avatar img,
+    .miniAvatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .miniAvatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #eaf2ff;
+      color: #0b3a70;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      font-weight: bold;
+      overflow: hidden;
+      flex-shrink: 0;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+
+    .infoLine {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      font-size: 17px;
+      margin: 10px 0;
+      line-height: 1.35;
+    }
+
+    .infoLine.messageLine {
+      align-items: flex-start;
+    }
+
+    .userInfo {
+      flex: 1;
+      font-size: 18px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 15px;
+      margin: 9px 0;
+      border: 1px solid #aaa;
+      border-radius: 12px;
+      font-size: 16px;
+      background: white;
+    }
+
+    textarea {
+      height: 130px;
+      resize: vertical;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    button:disabled {
+      opacity: 0.75;
+      cursor: not-allowed;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 15px;
+      border: 0;
+      border-radius: 14px;
+      font-weight: bold;
+      font-size: 16px;
+      margin-top: 10px;
+    }
+
+    .btn-yellow {
+      background: #ffd400;
+      color: black;
+    }
+
+    .btn-red {
+      background: #c62828;
+      color: white;
+    }
+
+    .btn-green {
+      background: #2e7d32;
+      color: white;
+    }
+
+    .btn-blue {
+      background: #0b3a70;
+      color: white;
+    }
+
+    .btn-orange {
+      background: #ef6c00;
+      color: white;
+    }
+
+    .formTitle {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 23px;
+      margin: 0 0 12px;
+      font-weight: bold;
+    }
+
+    .plusIcon {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #0b3a70;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 25px;
+      font-weight: bold;
+    }
+
+    .notice {
+      background: #fff8d6;
+      border-left: 5px solid #ffd400;
+      padding: 12px;
+      border-radius: 10px;
+      margin: 12px 0;
+    }
+
+    .card {
+      color: black;
+      padding: 18px;
+      border-radius: 18px;
+      margin-top: 16px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+      position: relative;
+    }
+
+    .card.dispo {
+      background: #e2ffe2;
+      border-left: 8px solid #2e7d32;
+    }
+
+    .card.pris {
+      background: #ffe1e1;
+      border-left: 8px solid #c62828;
+    }
+
+    .badgeLine {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .badgeStatus {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    .dot {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .dot.green { background: #4caf50; }
+    .dot.red { background: #f44336; }
+
+    .datePill {
+      background: rgba(255,255,255,0.55);
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-weight: bold;
+    }
+
+    .typePill {
+      display: inline-block;
+      background: rgba(11,58,112,0.10);
+      color: #0b3a70;
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-weight: bold;
+      margin: 0 0 10px;
+      font-size: 14px;
+    }
+
+    .card p {
+      font-size: 17px;
+      margin: 10px 0;
+      line-height: 1.35;
+    }
+
+    .empty {
+      text-align: center;
+      padding: 25px;
+      opacity: 0.9;
+      font-size: 17px;
+    }
+
+    @media (max-width: 520px) {
+      body { padding: 16px; padding-bottom: 90px; }
+
+      .header {
+        justify-content: center;
+        text-align: left;
+      }
+
+      .logo {
+        width: 70px;
+        height: 70px;
+      }
+
+      .title h1 {
+        font-size: 32px;
+      }
+
+      .title p {
+        font-size: 14px;
+      }
+
+      .tab {
+        font-size: 14px;
+        padding: 13px 6px;
+      }
+
+      .box, .userBox, .card {
+        border-radius: 20px;
+        padding: 16px;
+      }
+
+      .userTop {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .avatar {
+        margin: auto;
+      }
+
+      .userInfo {
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+
+<body>
+<div class="app">
+
+  <div class="header">
+    <img src="icon-192.png" class="logo" alt="Logo">
+    <div class="title">
+      <h1>Remplacements</h1>
+      <p>Centre Pénitentiaire de MAUBEUGE</p>
+    </div>
+  </div>
+
+  <div id="tabsBox" class="tabs" style="display:none;">
+    <button id="tabToutes" class="tab active" onclick="changerVue('toutes')">☰ Toutes les demandes</button>
+    <button id="tabMes" class="tab" onclick="changerVue('mes')">👤 Mes demandes</button>
+  </div>
+
+  <div id="loginBox" class="box">
+    <h2>Connexion agent</h2>
+
+    <input id="loginEmail" type="email" placeholder="Email">
+    <input id="loginPassword" type="password" placeholder="Mot de passe">
+
+    <button onclick="connexion()" class="btn btn-yellow">Se connecter</button>
+
+    <hr style="margin:22px 0;">
+
+    <div id="inscriptionBox">
+      <h2>Inscription agent</h2>
+
+      <p class="notice">
+        Après création du compte, vous pourrez vous connecter immédiatement.
+      </p>
+
+      <input id="prenom" placeholder="Prénom">
+      <input id="nom" placeholder="Nom">
+      <input id="registerEmail" type="email" placeholder="Email">
+      <input id="registerPassword" type="password" placeholder="Mot de passe">
+
+      <button onclick="inscription()" class="btn btn-green">Créer mon compte</button>
+    </div>
+
+    <div id="confirmationBox" style="display:none;background:#e8f5e9;border-left:5px solid #2e7d32;padding:12px;border-radius:8px;margin-top:15px;">
+      <strong>Compte créé.</strong><br>
+      Compte créé avec succès.
+    </div>
+  </div>
+
+  <div id="userBox" class="userBox">
+    <div class="userTop">
+      <div id="profileAvatar" class="avatar">👤</div>
+      <div class="userInfo"><strong>Connecté :</strong> <span id="userName"></span></div>
+      <button onclick="deconnexion()" class="btn btn-red" style="max-width:260px;">Se déconnecter</button>
+
+      <input type="file" id="avatarInput" accept="image/*" style="display:none;" onchange="uploadAvatar(event)">
+      <button onclick="document.getElementById('avatarInput').click()" class="btn btn-yellow" style="max-width:260px;">📸 Changer ma photo</button>
+    </div>
+  </div>
+
+  <div id="formBox" class="box" style="display:none;">
+    <div class="formTitle"><span class="plusIcon">+</span> Publier une demande</div>
+
+    <select id="typeAnnonce">
+      <option value="besoin">Je cherche un remplaçant</option>
+      <option value="disponibilite">Je suis disponible</option>
+    </select>
+
+    <input id="date" type="date">
+
+    <select id="service">
+      <option>Journée</option>
+      <option>Nuit</option>
+      <option>Matin</option>
+      <option>Après-midi</option>
+      <option>12h</option>
+      <option>RH</option>
+    </select>
+
+    <select id="mode">
+      <option>Officiel</option>
+      <option>Arrangement entre agents</option>
+    </select>
+
+    <textarea id="message" placeholder="Exemple : Bonjour, je cherche à me faire remplacer le 26 en journée. Échange possible contre une nuit ou un RH."></textarea>
+
+    <button onclick="ajouterDemande()" class="btn btn-yellow">✈️ Publier la demande</button>
+  </div>
+
+  <div id="liste"></div>
+
+</div>
+
+<script>
+const SUPABASE_URL = "https://dmtsbrlxkovmzjeqsfrl.supabase.co";
+const SUPABASE_KEY = "sb_publishable_d-b3ZPiauCROoIUO1zE5_Q_R0s_ULkG";
+
+const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let utilisateurConnecte = null;
+let profilConnecte = null;
+let vueActuelle = "toutes";
+let actionsEnCours = new Set();
+
+function changerVue(vue) {
+  vueActuelle = vue;
+
+  document.getElementById("tabToutes").classList.toggle("active", vue === "toutes");
+  document.getElementById("tabMes").classList.toggle("active", vue === "mes");
+
+  chargerDemandes();
+}
+
+async function inscription() {
+  const prenom = document.getElementById("prenom").value.trim();
+  const nom = document.getElementById("nom").value.trim();
+  const email = document.getElementById("registerEmail").value.trim();
+  const password = document.getElementById("registerPassword").value;
+
+  if (!prenom || !nom || !email || !password) {
+    alert("Merci de remplir tous les champs.");
+    return;
+  }
+
+  const { data, error } = await client.auth.signUp({
+    email: email,
+    password: password
+  });
+
+  if (error) {
+    alert("Erreur inscription : " + error.message);
+    return;
+  }
+
+  const userId = data.user?.id;
+
+  const { error: profilError } = await client.from("profils").insert({
+    id: userId,
+    email: email,
+    nom: nom,
+    prenom: prenom,
+    avatar_url: null
+  });
+
+  if (profilError) {
+    alert("Compte créé, mais erreur profil : " + profilError.message);
+    return;
+  }
+
+  document.getElementById("prenom").value = "";
+  document.getElementById("nom").value = "";
+  document.getElementById("registerEmail").value = "";
+  document.getElementById("registerPassword").value = "";
+
+  document.getElementById("inscriptionBox").style.display = "none";
+  document.getElementById("confirmationBox").style.display = "block";
+
+  alert("Compte créé avec succès. Vous pouvez maintenant vous connecter.");
+}
+
+async function connexion() {
+  const email = document.getElementById("loginEmail").value.trim();
+  const password = document.getElementById("loginPassword").value;
+
+  const { data, error } = await client.auth.signInWithPassword({
+    email: email,
+    password: password
+  });
+
+  if (error) {
+    alert("Erreur connexion : " + error.message);
+    return;
+  }
+
+  utilisateurConnecte = data.user;
+  await chargerProfil();
+  afficherConnecte();
+  chargerDemandes();
+}
+
+async function chargerProfil() {
+  const { data, error } = await client
+    .from("profils")
+    .select("*")
+    .eq("id", utilisateurConnecte.id)
+    .single();
+
+  if (error) {
+    profilConnecte = {
+      nom: utilisateurConnecte.email,
+      prenom: ""
+    };
+    return;
+  }
+
+  profilConnecte = data;
+
+  const avatarLocal = localStorage.getItem("avatar_url_" + utilisateurConnecte.id);
+  if (!profilConnecte.avatar_url && avatarLocal) {
+    profilConnecte.avatar_url = avatarLocal;
+  }
+}
+
+async function verifierSession() {
+  const { data } = await client.auth.getSession();
+
+  if (data.session) {
+    utilisateurConnecte = data.session.user;
+    await chargerProfil();
+    afficherConnecte();
+    chargerDemandes();
+  } else {
+    afficherDeconnecte();
+    document.getElementById("liste").innerHTML = "";
+  }
+}
+
+function nomComplet() {
+  if (!profilConnecte) return "";
+  return `${profilConnecte.prenom || ""} ${profilConnecte.nom || ""}`.trim();
+}
+
+function formatDateFr(dateIso) {
+  if (!dateIso) return "";
+  const [annee, mois, jour] = dateIso.split("-");
+  return `${jour}/${mois}/${annee}`;
+}
+
+function echapperHtml(texte) {
+  return String(texte || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+async function envoyerEmailNotification({ to, subject, html }) {
+  if (!to) {
+    console.log("Aucun destinataire mail indiqué.");
+    return;
+  }
+
+  const { data, error } = await client.functions.invoke("send-notification-email", {
+    body: {
+      to,
+      subject,
+      html
+    }
+  });
+
+  if (error) {
+    console.log("Erreur envoi mail :", error.message);
+    return;
+  }
+
+  console.log("Mail envoyé :", data);
+}
+
+function initiales(nom) {
+  return (nom || "?")
+    .trim()
+    .split(/\s+/)
+    .map(mot => mot[0])
+    .join("")
+    .substring(0, 2)
+    .toUpperCase();
+}
+
+function urlAvatarAvecCache(url) {
+  return url || "";
+}
+
+function htmlMiniAvatar(url, nom) {
+  if (url) {
+    return `<span class="miniAvatar"><img src="${urlAvatarAvecCache(url)}" alt=""></span>`;
+  }
+
+  return `<span class="miniAvatar">${initiales(nom)}</span>`;
+}
+
+function afficherAvatarConnecte() {
+  const avatar = document.getElementById("profileAvatar");
+  if (!avatar) return;
+
+  if (profilConnecte && profilConnecte.avatar_url) {
+    avatar.innerHTML = `<img src="${urlAvatarAvecCache(profilConnecte.avatar_url)}" alt="Photo de profil">`;
+  } else {
+    avatar.innerHTML = "👤";
+  }
+}
+
+async function uploadAvatar(event) {
+  const file = event.target.files[0];
+
+  if (!file || !utilisateurConnecte) return;
+
+  const extension = file.name.split(".").pop().toLowerCase();
+  const fileName = `${utilisateurConnecte.id}.${extension}`;
+
+  const { error: uploadError } = await client
+    .storage
+    .from("avatars")
+    .upload(fileName, file, {
+      upsert: true,
+      cacheControl: "0"
+    });
+
+  if (uploadError) {
+    alert("Erreur upload : " + uploadError.message);
+    return;
+  }
+
+  const { data } = client
+    .storage
+    .from("avatars")
+    .getPublicUrl(fileName);
+
+  const avatarUrl = data.publicUrl;
+
+  const { error: updateError } = await client
+    .from("profils")
+    .update({
+      avatar_url: avatarUrl
+    })
+    .eq("id", utilisateurConnecte.id);
+
+  if (updateError) {
+    alert("Erreur sauvegarde profil : " + updateError.message);
+    return;
+  }
+
+  profilConnecte.avatar_url = avatarUrl;
+  localStorage.setItem("avatar_url_" + utilisateurConnecte.id, avatarUrl);
+  afficherAvatarConnecte();
+  chargerDemandes();
+
+  document.getElementById("avatarInput").value = "";
+  alert("Photo mise à jour !");
+}
+
+
+function afficherConnecte() {
+  document.getElementById("loginBox").style.display = "none";
+  document.getElementById("userBox").style.display = "block";
+  document.getElementById("formBox").style.display = "block";
+  document.getElementById("tabsBox").style.display = "flex";
+  document.getElementById("userName").innerText = nomComplet();
+  afficherAvatarConnecte();
+}
+
+function afficherDeconnecte() {
+  document.getElementById("loginBox").style.display = "block";
+  document.getElementById("userBox").style.display = "none";
+  document.getElementById("formBox").style.display = "none";
+  document.getElementById("tabsBox").style.display = "none";
+}
+
+async function deconnexion() {
+  await client.auth.signOut();
+  utilisateurConnecte = null;
+  profilConnecte = null;
+  afficherDeconnecte();
+  document.getElementById("liste").innerHTML = "";
+}
+
+async function ajouterDemande() {
+  if (!utilisateurConnecte) {
+    alert("Tu dois être connecté.");
+    return;
+  }
+
+  const typeAnnonce = document.getElementById("typeAnnonce").value;
+  const date = document.getElementById("date").value;
+  const service = document.getElementById("service").value;
+  const mode = document.getElementById("mode").value;
+  const message = document.getElementById("message").value;
+
+  if (!date) {
+    alert("Merci de choisir une date.");
+    return;
+  }
+
+  const { error } = await client.from("demandes").insert({
+    agent_nom: nomComplet(),
+    agent_id: utilisateurConnecte.id,
+    agent_email: utilisateurConnecte.email,
+    type_annonce: typeAnnonce,
+    date_service: date,
+    type_service: service,
+    mode_remplacement: mode,
+    message: message,
+    statut: "Disponible",
+    pris_par: null,
+    pris_par_id: null,
+    pris_par_email: null
+  });
+
+  if (error) {
+    alert("Erreur : " + error.message);
+    return;
+  }
+
+  alert(typeAnnonce === "disponibilite" ? "Disponibilité publiée !" : "Demande publiée !");
+  document.getElementById("typeAnnonce").value = "besoin";
+  document.getElementById("date").value = "";
+  document.getElementById("message").value = "";
+  chargerDemandes();
+}
+
+async function prendreDemande(id, agentId) {
+  if (!utilisateurConnecte) {
+    alert("Tu dois être connecté.");
+    return;
+  }
+
+  if (agentId === utilisateurConnecte.id) {
+    alert("Tu ne peux pas prendre ta propre demande.");
+    return;
+  }
+
+  if (actionsEnCours.has(id)) return;
+  actionsEnCours.add(id);
+  chargerDemandes();
+
+  const { data, error } = await client
+    .from("demandes")
+    .update({
+      statut: "Pris",
+      pris_par: nomComplet(),
+      pris_par_id: utilisateurConnecte.id,
+      pris_par_email: utilisateurConnecte.email
+    })
+    .eq("id", id)
+    .eq("statut", "Disponible")
+    .select();
+
+  actionsEnCours.delete(id);
+
+  if (error) {
+    alert("Erreur : " + error.message);
+    chargerDemandes();
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    alert("Cette demande vient déjà d’être prise par quelqu’un.");
+    chargerDemandes();
+    return;
+  }
+
+  const demande = data[0];
+
+  await envoyerEmailNotification({
+    to: demande.agent_email,
+    subject: "Votre demande de remplacement a trouvé preneur",
+    html: `
+      <div style="font-family:Arial,sans-serif;line-height:1.5;color:#111;">
+        <h2>Votre demande a trouvé preneur</h2>
+        <p>Bonjour ${echapperHtml(demande.agent_nom)},</p>
+        <p>Votre demande de remplacement a été prise par <strong>${echapperHtml(nomComplet())}</strong>.</p>
+        <p>
+          <strong>Date :</strong> ${echapperHtml(formatDateFr(demande.date_service))}<br>
+          <strong>Service :</strong> ${echapperHtml(demande.type_service)}<br>
+          <strong>Mode :</strong> ${echapperHtml(demande.mode_remplacement)}
+        </p>
+        ${demande.message ? `<p><strong>Message de la demande :</strong><br>${echapperHtml(demande.message).replace(/\n/g, "<br>")}</p>` : ""}
+        <p>Vous pouvez consulter l'application pour voir le détail.</p>
+      </div>
+    `
+  });
+
+  alert("Tu as pris ce remplacement. Un mail a été envoyé à l’agent.");
+  chargerDemandes();
+}
+
+async function annulerPrise(id) {
+  if (!utilisateurConnecte) return;
+
+  const { data: demandeAvantAnnulation, error: lectureError } = await client
+    .from("demandes")
+    .select("*")
+    .eq("id", id)
+    .eq("pris_par_id", utilisateurConnecte.id)
+    .single();
+
+  if (lectureError) {
+    alert("Erreur : " + lectureError.message);
+    return;
+  }
+
+  const { error } = await client
+    .from("demandes")
+    .update({
+      statut: "Disponible",
+      pris_par: null,
+      pris_par_id: null,
+      pris_par_email: null
+    })
+    .eq("id", id)
+    .eq("pris_par_id", utilisateurConnecte.id);
+
+  if (error) {
+    alert("Erreur : " + error.message);
+    return;
+  }
+
+  await envoyerEmailNotification({
+    to: demandeAvantAnnulation.agent_email,
+    subject: "La prise en charge de votre remplacement a été annulée",
+    html: `
+      <div style="font-family:Arial,sans-serif;line-height:1.5;color:#111;">
+        <h2>Prise en charge annulée</h2>
+        <p>Bonjour ${echapperHtml(demandeAvantAnnulation.agent_nom)},</p>
+        <p><strong>${echapperHtml(nomComplet())}</strong> a annulé la prise en charge de votre demande.</p>
+        <p>
+          <strong>Date :</strong> ${echapperHtml(formatDateFr(demandeAvantAnnulation.date_service))}<br>
+          <strong>Service :</strong> ${echapperHtml(demandeAvantAnnulation.type_service)}<br>
+          <strong>Mode :</strong> ${echapperHtml(demandeAvantAnnulation.mode_remplacement)}
+        </p>
+        <p>Votre demande repasse disponible dans l'application.</p>
+      </div>
+    `
+  });
+
+  alert("Prise annulée. Un mail a été envoyé à l’agent.");
+  chargerDemandes();
+}
+
+async function supprimerDemande(id) {
+  if (!utilisateurConnecte) return;
+
+  const confirmation = confirm("Supprimer cette demande ?");
+  if (!confirmation) return;
+
+  const { error } = await client
+    .from("demandes")
+    .delete()
+    .eq("id", id)
+    .eq("agent_id", utilisateurConnecte.id);
+
+  if (error) {
+    alert("Erreur : " + error.message);
+    return;
+  }
+
+  alert("Demande supprimée.");
+  chargerDemandes();
+}
+
+async function chargerDemandes() {
+  if (!utilisateurConnecte) {
+    document.getElementById("liste").innerHTML = "";
+    return;
+  }
+
+  const { data, error } = await client
+    .from("demandes")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.log(error.message);
+    return;
+  }
+
+  let avatars = {};
+  let avatarsParNom = {};
+
+  const { data: profilsData, error: profilsError } = await client
+    .from("profils")
+    .select("id, prenom, nom, avatar_url");
+
+  if (!profilsError && profilsData) {
+    profilsData.forEach(p => {
+      const nomProfil = `${p.prenom || ""} ${p.nom || ""}`.trim();
+      avatars[p.id] = p.avatar_url;
+      if (nomProfil) avatarsParNom[nomProfil] = p.avatar_url;
+    });
+  }
+
+  if (profilConnecte && profilConnecte.avatar_url) {
+    avatars[utilisateurConnecte.id] = profilConnecte.avatar_url;
+    avatarsParNom[nomComplet()] = profilConnecte.avatar_url;
+  }
+
+  const liste = document.getElementById("liste");
+  liste.innerHTML = "";
+
+  let demandes = data;
+
+  if (vueActuelle === "mes") {
+    demandes = data.filter(d =>
+      d.agent_id === utilisateurConnecte.id ||
+      d.pris_par_id === utilisateurConnecte.id ||
+      d.agent_nom === nomComplet()
+    );
+  }
+
+  if (demandes.length === 0) {
+    liste.innerHTML = `<div class="empty">Aucune demande à afficher.</div>`;
+    return;
+  }
+
+  demandes.forEach(d => {
+    const typeAnnonce = d.type_annonce || "besoin";
+    const estDisponibilite = typeAnnonce === "disponibilite";
+    const estPris = d.statut === "Pris";
+    const estMaDemande = d.agent_id === utilisateurConnecte.id || d.agent_nom === nomComplet();
+    const estMaPrise = d.pris_par_id === utilisateurConnecte.id;
+
+    const cardClass = estPris ? "pris" : "dispo";
+    const dotClass = estPris ? "red" : "green";
+    const titre = estPris ? "Pris" : "Disponible";
+    const etiquetteType = estDisponibilite ? "Agent disponible" : "Recherche remplaçant";
+
+    let bouton = "";
+
+    if (estPris) {
+      if (estMaPrise) {
+        bouton = `<button onclick="annulerPrise(${d.id})" class="btn btn-orange">Annuler ma prise</button>`;
+      } else {
+        bouton = `<button disabled class="btn btn-red">Déjà pris par ${d.pris_par || "un agent"}</button>`;
+      }
+    } else {
+      if (estMaDemande) {
+        bouton = `<button onclick="supprimerDemande(${d.id})" class="btn btn-red">🗑️ Supprimer ma demande</button>`;
+      } else {
+        const actionEnCours = actionsEnCours.has(d.id);
+        if (estDisponibilite) {
+          const emailAgent = d.agent_email || "";
+          bouton = `<button onclick="window.location.href='mailto:${emailAgent}?subject=Disponibilité remplacement ${d.date_service || ""}'" class="btn btn-blue">Contacter</button>`;
+        } else {
+          bouton = `<button onclick="prendreDemande(${d.id}, '${d.agent_id || ""}')" class="btn btn-green" ${actionEnCours ? "disabled" : ""}>${actionEnCours ? "Traitement..." : "Je prends"}</button>`;
+        }
+      }
+    }
+
+    liste.innerHTML += `
+      <div class="card ${cardClass}">
+        <div class="badgeLine">
+          <div class="badgeStatus"><span class="dot ${dotClass}"></span>${titre}</div>
+          <div class="datePill">${d.date_service}</div>
+        </div>
+
+        <div class="typePill">${etiquetteType}</div>
+
+        <div class="infoLine">
+          ${htmlMiniAvatar(avatars[d.agent_id] || avatarsParNom[d.agent_nom], d.agent_nom)}
+          <strong>${estDisponibilite ? "Agent :" : "Demandé par :"}</strong> ${d.agent_nom}
+        </div>
+        <div class="infoLine">🕒 <strong>Service :</strong> ${d.type_service}</div>
+        <div class="infoLine">🏢 <strong>Mode :</strong> ${d.mode_remplacement}</div>
+        <div class="infoLine messageLine">💬 <span><strong>Message :</strong><br>${d.message || "Aucun message"}</span></div>
+        ${d.pris_par ? `
+          <div class="infoLine">
+            ${htmlMiniAvatar(avatars[d.pris_par_id] || avatarsParNom[d.pris_par], d.pris_par)}
+            <strong>Pris par :</strong> ${d.pris_par}
+          </div>
+        ` : ""}
+        ${bouton}
+      </div>
+    `;
+  });
+}
+
+client
+  .channel('realtime-demandes')
+  .on(
+    'postgres_changes',
+    {
+      event: '*',
+      schema: 'public',
+      table: 'demandes'
+    },
+    () => {
+      chargerDemandes();
+    }
+  )
+  .subscribe();
+
+verifierSession();
+
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js")
+      .then(() => console.log("Service Worker enregistré"))
+      .catch(err => console.log("Erreur SW", err));
+  });
+}
+</script>
+
+</body>
+</html>
